@@ -9,9 +9,3 @@ Features:
 - Configurable baud rate
 - SystemVerilog testbench
 
-Project structure:
-
-rtl/  -> RTL modules
-tb/   -> testbench
-sim/  -> simulation scripts
-docs/ -> architecture diagrams
