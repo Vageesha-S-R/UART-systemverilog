@@ -1,4 +1,6 @@
-module uart_tx (
+module uart_tx #(parameter PARITY_ENABLE = 1'b0,
+    parameter PARITY_ODD = 1'b0
+) (
     input clk,
     input rst_n,
     input logic [7:0] data_in,
@@ -10,7 +12,8 @@ module uart_tx (
 
 logic [7:0] shift_reg;
 logic [3:0] bit_count;
-typedef enum logic[1:0]{idle=2'b00, start=2'b01, data=2'b10, stop=2'b11} state_t;
+logic parity_bit;
+typedef enum logic[2:0]{idle=3'b000, start=3'b001, data=3'b010, parity=3'b011, stop=3'b100} state_t;
 state_t state;
 
 always_ff @(posedge clk or negedge rst_n) begin
@@ -29,6 +32,7 @@ always_ff @(posedge clk or negedge rst_n) begin
                     busy<=0;
                     if (data_valid) begin
                         shift_reg<=data_in;
+                        parity_bit<=PARITY_ODD ? ~(^data_in) : (^data_in);
                         state<=start;
                         busy<=1;
                     end
@@ -42,13 +46,22 @@ always_ff @(posedge clk or negedge rst_n) begin
                         tx<=shift_reg[0];
                         shift_reg<=shift_reg>>1;
                         bit_count<=0;
-                        state<=stop;
+                        if (PARITY_ENABLE) begin
+                            state<=parity;
+                        end
+                        else begin
+                            state<=stop;
+                        end
                     end
                     else begin
                         tx<=shift_reg[0];
                         shift_reg<=shift_reg>>1;
                         bit_count<=bit_count+1;
                     end
+                end
+                parity: begin
+                    tx<=parity_bit;
+                    state<=stop;
                 end
                 stop: begin
                     tx<=1;
