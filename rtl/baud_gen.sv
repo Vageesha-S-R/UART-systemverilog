@@ -6,9 +6,8 @@ module baud_gen #(
     input rst_n,
     output logic baud_tick
 );
-    localparam integer CLKS_PER_BIT = CLK_FREQ / BAUD_RATE;
-    localparam integer width = $clog2(CLKS_PER_BIT);
-    logic [width-1:0] counter;
+    localparam CLKS_PER_BIT = CLK_FREQ / BAUD_RATE;
+    logic [$clog2(CLKS_PER_BIT)-1:0] counter;
 
     always @(posedge clk or negedge rst_n) begin
        if (!rst_n) begin

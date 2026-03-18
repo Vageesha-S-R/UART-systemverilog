@@ -52,6 +52,7 @@ always_ff @(posedge clk or negedge rst_n) begin
                 end
                 stop: begin
                     tx<=1;
+                    busy<=0;
                     state<=idle;
                 end
                 default: state<=idle;

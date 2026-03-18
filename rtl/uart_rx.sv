@@ -9,7 +9,7 @@ module uart_rx (
 
     logic [7:0] shift_reg;
     logic [3:0] bit_count;
-    typedef enum [1:0] {idle=2'b00, start=2'b01, data=2'b10, stop=2'b11} state_t;
+    typedef enum logic[1:0] {idle=2'b00, start=2'b01, data=2'b10, stop=2'b11} state_t;
     state_t state;
 
     always_ff @( posedge clk or negedge rst_n ) begin
