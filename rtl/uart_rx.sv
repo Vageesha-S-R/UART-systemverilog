@@ -1,11 +1,10 @@
-module uart_rx #(
-    parameter PARITY_ENABLE = 1'b0,
-    parameter PARITY_ODD = 1'b0
-) (
+module uart_rx (
     input clk,
     input rst_n,
     input rx,
     input baud_16x_tick,
+    input logic parity_enable,
+    input logic parity_odd,
     output logic [7:0] data_out,
     output logic data_valid,
     output logic parity_error
@@ -62,7 +61,7 @@ module uart_rx #(
 
                             if (bit_count == 7) begin
                                 bit_count <= 0;
-                                if (PARITY_ENABLE) begin
+                                if (parity_enable) begin
                                     state <= parity;
                                 end
                                 else begin
@@ -76,7 +75,7 @@ module uart_rx #(
                     end
                     parity: begin
                         if (sample_count == 8) begin
-                            parity_error <= ((PARITY_ODD ? ~(^shift_reg) : (^shift_reg)) != rx);
+                            parity_error <= ((parity_odd ? ~(^shift_reg) : (^shift_reg)) != rx);
                             state <= stop;
                         end 
                     end

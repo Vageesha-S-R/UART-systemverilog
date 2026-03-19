@@ -1,11 +1,11 @@
-module uart_tx #(parameter PARITY_ENABLE = 1'b0,
-    parameter PARITY_ODD = 1'b0
-) (
+module uart_tx (
     input clk,
     input rst_n,
     input logic [7:0] data_in,
     input logic baud_tick,
     input logic data_valid,
+    input logic parity_enable,
+    input logic parity_odd,
     output logic tx,
     output logic busy
 );
@@ -32,7 +32,7 @@ always_ff @(posedge clk or negedge rst_n) begin
                     busy<=0;
                     if (data_valid) begin
                         shift_reg<=data_in;
-                        parity_bit<=PARITY_ODD ? ~(^data_in) : (^data_in);
+                        parity_bit<=parity_odd ? ~(^data_in) : (^data_in);
                         state<=start;
                         busy<=1;
                     end
@@ -46,7 +46,7 @@ always_ff @(posedge clk or negedge rst_n) begin
                         tx<=shift_reg[0];
                         shift_reg<=shift_reg>>1;
                         bit_count<=0;
-                        if (PARITY_ENABLE) begin
+                        if (parity_enable) begin
                             state<=parity;
                         end
                         else begin
