@@ -1,6 +1,8 @@
 module uart_top #(
     parameter BAUD_RATE = 9600,
     parameter CLK_FREQ = 50000000
+    parameter PARITY_ENABLE = 1'b0,
+    parameter PARITY_ODD = 1'b0
 ) (
     input clk,
     input rst_n,
@@ -46,7 +48,10 @@ fifo tx_fifo (
     .full(tx_fifo_full)
 );
 
-uart_tx uart_tx_inst (
+uart_tx #(
+    .PARITY_ENABLE(PARITY_ENABLE),
+    .PARITY_ODD(PARITY_ODD)
+) uart_tx_inst (
     .clk(clk),
     .rst_n(rst_n),
     .data_in(tx_fifo_data_out),
@@ -56,7 +61,10 @@ uart_tx uart_tx_inst (
     .busy(tx_busy)
 );
 
-uart_rx uart_rx_inst (
+uart_rx #(
+    .PARITY_ENABLE(PARITY_ENABLE),
+    .PARITY_ODD(PARITY_ODD)
+) uart_rx_inst (
     .clk(clk),
     .rst_n(rst_n),
     .rx(serial_line),
