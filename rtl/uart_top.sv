@@ -1,6 +1,6 @@
 module uart_top #(
     parameter BAUD_RATE = 9600,
-    parameter CLK_FREQ = 50000000
+    parameter CLK_FREQ = 50000000,
     parameter PARITY_ENABLE = 1'b0,
     parameter PARITY_ODD = 1'b0
 ) (
@@ -11,11 +11,13 @@ module uart_top #(
     input logic read_en,
     output logic [7:0] data_out,
     output logic data_out_valid,
+    output logic parity_error,
     output logic tx_fifo_full,
     output logic rx_fifo_empty
 );
 
 logic baud_tick;
+logic baud_16x_tick;
 logic serial_line;
 
 logic [7:0] tx_fifo_data_out;
@@ -26,6 +28,7 @@ logic tx_busy;
 logic [7:0] rx_data;
 logic rx_data_valid;
 logic rx_fifo_write;
+logic rx_fifo_full;
 
 
 
@@ -35,7 +38,8 @@ baud_gen #(
     .CLK_FREQ(CLK_FREQ)) baud_gen_inst(
     .clk(clk),
     .rst_n(rst_n),
-    .baud_tick(baud_tick));
+    .baud_tick(baud_tick),
+    .baud_16x_tick(baud_16x_tick));
 
 fifo tx_fifo (
     .clk(clk),
@@ -68,9 +72,10 @@ uart_rx #(
     .clk(clk),
     .rst_n(rst_n),
     .rx(serial_line),
-    .baud_tick(baud_tick),
+    .baud_16x_tick(baud_16x_tick),
     .data_out(rx_data),
-    .data_valid(rx_data_valid)
+    .data_valid(rx_data_valid),
+    .parity_error(parity_error)
 );
 
 fifo rx_fifo (
@@ -81,12 +86,12 @@ fifo rx_fifo (
     .data_in(rx_data),
     .data_out(data_out),
     .empty(rx_fifo_empty),
-    .full()
+    .full(rx_fifo_full)
 );
 
 
 assign tx_fifo_read  = !tx_fifo_empty && !tx_busy;
-assign rx_fifo_write = rx_data_valid; 
+assign rx_fifo_write = rx_data_valid && !rx_fifo_full; 
 
 assign data_out_valid = !rx_fifo_empty;
 
