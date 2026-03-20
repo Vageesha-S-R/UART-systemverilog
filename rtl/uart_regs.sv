@@ -92,14 +92,17 @@ always_ff @( posedge clk or negedge rst_n ) begin
 end
 
 always_comb begin
-    status_reg[0] = !rx_fifo_empty;
-    status_reg[1] = !tx_fifo_full;
+    status_reg[0] = !rx_fifo_empty; //rx data available
+    status_reg[1] = !tx_fifo_full; //tx fifo not full or ready to accept data
     status_reg[2] = parity_error;
     status_reg[7:3] = 0;
 end
 
 assign parity_enable = control_reg[2];
 assign parity_odd = control_reg[3];
+
+// control_reg[0] - rx interrupt enable
+// control_reg[1] - tx interrupt enable
 
 assign irq = (status_reg[0] && control_reg[0]) || (status_reg[1] && control_reg[1]) || (status_reg[2]);
     
