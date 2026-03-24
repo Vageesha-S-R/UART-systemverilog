@@ -22,6 +22,8 @@ logic [3:0] addr;
 logic [7:0] wdata;
 logic [7:0] rdata;
 
+logic [1:0] read_delay;
+
 assign write_en = wb_cyc && wb_stb && wb_we;
 assign read_en = wb_cyc && wb_stb && !wb_we;
 
@@ -34,7 +36,23 @@ always_ff @( posedge clk or negedge rst_n ) begin
         wb_ack <= 0;
     end
     else begin
-        wb_ack <= wb_cyc && wb_stb && !wb_ack;
+        wb_ack <= 0;
+        if (wb_cyc && wb_stb && wb_we) begin
+            wb_ack <=1;
+        end
+
+        else if(wb_cyc && wb_stb && !wb_we) begin
+            read_delay <= 2;
+        end
+
+        if(read_delay != 0) begin
+            read_delay <= read_delay - 1;
+            
+            if(read_delay == 1) begin
+                wb_ack <= 1;
+            end
+        end
+
     end
     
 end

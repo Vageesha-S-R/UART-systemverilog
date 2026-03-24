@@ -72,24 +72,27 @@ task wb_read(input [3:0] addr);
         wb_cyc <= 1;
         wb_stb <= 1;
 
-        @(posedge clk);
         wait(wb_ack);
+        wb_cyc <= 0;
+        wb_stb <= 0;
+        
+        @(posedge clk);
 
         $display("Read from address %0h: %0h", addr, wb_rdata);
 
-        wb_cyc <= 0;
-        wb_stb <= 0;
     end
 endtask
 
 initial begin
     wait(rst_n);
 
+    
     wb_write(4'hC, 8'h01); 
-
+    
+    #50000;
     wb_write(4'h0, 8'hA5);
 
-    #200000;
+    #2000000;  
 
     wb_read(4'h8);
 
@@ -103,7 +106,7 @@ initial begin
     #1000;
     $finish;
 
-
+    
 end
 
 initial begin

@@ -38,6 +38,9 @@ localparam CONTROL_ADDR = 4'hC;
 logic [7:0] control_reg;
 logic [7:0] status_reg;
 
+logic rx_read_pending;
+logic rx_data_valid_d;
+
 always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         control_reg <= 0;
@@ -46,18 +49,12 @@ always_ff @(posedge clk or negedge rst_n) begin
     end
     else begin
         tx_fifo_write <= 0;
-        if (write_en) begin
-            case (addr)
-                TX_ADDR: begin
-                    if (!tx_fifo_full) begin
-                        tx_fifo_write <= 1;
-                        tx_fifo_wdata <= wdata;
-                    end
-                end
-                CONTROL_ADDR: begin
-                    control_reg <= wdata;
-                end
-            endcase
+        if (write_en && addr == TX_ADDR && !tx_fifo_full) begin
+            tx_fifo_write <= 1;
+            tx_fifo_wdata <= wdata;
+        end
+        if (write_en && addr == CONTROL_ADDR) begin
+            control_reg <= wdata;
         end
     end
 end
@@ -66,29 +63,32 @@ always_ff @( posedge clk or negedge rst_n ) begin
     if(!rst_n) begin
         rdata <= 0;
         rx_fifo_read <= 0;
+        rx_read_pending <= 0;
+        rx_data_valid_d <= 0;
     end
     else begin
         rx_fifo_read <= 0;
-        if(read_en) begin
+
+        rx_data_valid_d <= rx_read_pending;
+
+        if (rx_data_valid_d) begin
+            rdata <= rx_fifo_rdata;
+            rx_read_pending <= 0;
+        end
+
+        else if(read_en && addr == RX_ADDR && !rx_fifo_empty && !rx_read_pending) begin
+            rx_read_pending <= 1;
+            rx_fifo_read <= 1;
+        end
+        
+        else if (!rx_read_pending && !rx_data_valid_d && read_en) begin
             case (addr)
-                RX_ADDR: begin
-                    if(!rx_fifo_empty) begin
-                        rdata <= rx_fifo_rdata;
-                        rx_fifo_read <= 1;
-                    end
-                    else rdata <= 0;
-                end
-                STATUS_ADDR: begin
-                    rdata<= status_reg;
-                end
-                CONTROL_ADDR: begin
-                    rdata <= control_reg;
-                end 
-                default: rdata <= 0;
+                STATUS_ADDR:  rdata <= status_reg;
+                CONTROL_ADDR: rdata <= control_reg;
+                default:      rdata <= 0;
             endcase
         end
     end
-    
 end
 
 always_comb begin

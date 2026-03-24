@@ -9,15 +9,30 @@ module uart_tx (
     output logic tx,
     output logic busy
 );
-
+logic data_valid_latched;
 logic [7:0] shift_reg;
 logic [3:0] bit_count;
 logic parity_bit;
 typedef enum logic[2:0]{idle=3'b000, start=3'b001, data=3'b010, parity=3'b011, stop=3'b100} state_t;
 state_t state;
 
+always_ff @( posedge clk or negedge rst_n ) begin 
+    if (!rst_n) begin
+        data_valid_latched <= 0;
+    end
+    else begin
+        if (data_valid) begin
+            data_valid_latched <= 1;
+        end
+        else if (state == idle && data_valid_latched && baud_tick) begin
+            data_valid_latched <= 0;
+        end
+    end
+    
+end
+
 always_ff @(posedge clk or negedge rst_n) begin
-    if(!rst_n)begin
+    if(!rst_n) begin
         state<=idle;
         bit_count<=0;
         shift_reg<=0;
@@ -30,7 +45,7 @@ always_ff @(posedge clk or negedge rst_n) begin
                 idle: begin
                     tx<=1;
                     busy<=0;
-                    if (data_valid) begin
+                    if (data_valid_latched) begin
                         shift_reg<=data_in;
                         parity_bit<=parity_odd ? ~(^data_in) : (^data_in);
                         state<=start;
