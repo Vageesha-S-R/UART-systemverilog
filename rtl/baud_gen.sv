@@ -12,7 +12,7 @@ module baud_gen #(
     logic [$clog2(CLKS_PER_BIT)-1:0] counter;
     logic [$clog2(CLKS_PER_BIT_16X)-1:0] counter_16x;
 
-    always @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk or negedge rst_n) begin
        if (!rst_n) begin
             counter<=0;
             counter_16x<=0;
