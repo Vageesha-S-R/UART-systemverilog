@@ -1,0 +1,14 @@
+# Sigasi / build artifacts
+build/
+work/
+libraries/
+
+# Verilator
+obj_dir/
+
+# Icarus
+a.out
+
+# Logs
+*.log
+.gitignore
