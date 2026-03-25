@@ -1,14 +1,14 @@
-# Sigasi / build artifacts
+# Sigasi / Eclipse
+.settings/
+.project
+.library_mapping.xml
+
+# Build artifacts
 build/
 work/
-libraries/
-
-# Verilator
 obj_dir/
 
-# Icarus
+# Simulation outputs
 a.out
-
-# Logs
+*.vcd
 *.log
-.gitignore
