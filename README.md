@@ -4,22 +4,22 @@ Designed and verified a UART (Universal Asynchronous Receiver Transmitter) IP co
 
 ##  Features
 
-### 🔹 UART Functionality
+###  UART Functionality
 - 8-bit data transmission (LSB first)
 - Configurable baud rate
 - Start and stop bit handling
 - Optional parity support (even/odd)
 
-### 🔹 Receiver Enhancements
+###  Receiver Enhancements
 - 16× oversampling for robust data recovery
 - Mid-bit sampling for noise tolerance
 
-### 🔹 FIFO Buffers
+###  FIFO Buffers
 - Separate TX and RX FIFOs
 - Prevents data loss during burst transfers
 - Handles asynchronous producer/consumer rates
 
-### 🔹 Register Interface
+###  Register Interface
 - Memory-mapped registers:
   - TX Data Register (write)
   - RX Data Register (read)
@@ -27,12 +27,12 @@ Designed and verified a UART (Universal Asynchronous Receiver Transmitter) IP co
   - Control Register
 - Supports parity configuration and interrupt enable
 
-### 🔹 Interrupt Support
+###  Interrupt Support
 - RX data available interrupt
 - TX ready interrupt
 - Parity error interrupt
 
-### 🔹 Wishbone Bus Interface
+###  Wishbone Bus Interface
 - Fully compatible Wishbone slave interface
 - Supports read/write transactions
 - Proper handling of multi-cycle read latency
