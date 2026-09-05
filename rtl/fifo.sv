@@ -35,12 +35,18 @@ module fifo #(
                 data_out <= mem[read_ptr];
                 read_ptr <= read_ptr + 1;
             end
+
+            /*seperate logic block for count is , if we write inside the if blocks then there will be a problem 
+              when both read and write happening at the same time, so with the logic below when both read and write 
+              happens case value is 2'b11 that means count should remain same which cannot possible if we wrote it
+              in above if blocks*/
+
             case ({write_en && !full, read_en && !empty})
                 2'b10:count <= count + 1;
                 2'b01:count <= count - 1; 
                 default: count <= count;
             endcase
         end
-        end
+    end
     
 endmodule
