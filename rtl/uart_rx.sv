@@ -53,6 +53,7 @@ module uart_rx (
                                 state <= data;
                                 bit_count <= 0;
                                 sample_count <= 0;
+                            // here the sample count shouldn't become zero, as it should count till 15
                             end
                             else begin
                                 state <= idle;
