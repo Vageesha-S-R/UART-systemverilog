@@ -16,6 +16,8 @@ module uart_top #(
 
 logic baud_tick;
 logic baud_16x_tick;
+/*here we used a serial line to connect tx and rx , which is wrong , tx output should be connected to tx pin
+  rx input should be connected to rx pin and these pins should be ports not internal signals*/
 logic serial_line;
 
 logic [7:0] tx_fifo_data_out;
