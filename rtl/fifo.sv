@@ -31,6 +31,8 @@ module fifo #(
                 mem[write_ptr] <= data_in;
                 write_ptr <= write_ptr + 1;
             end
+            /* have to make fifo read combinational insted of synchronous so there won't be any clock delays
+                in other modules (once check it on the internet) */
             if (read_en && !empty) begin
                 data_out <= mem[read_ptr];
                 read_ptr <= read_ptr + 1;
