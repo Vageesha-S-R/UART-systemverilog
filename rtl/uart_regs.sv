@@ -49,6 +49,9 @@ always_ff @(posedge clk or negedge rst_n) begin
     end
     else begin
         tx_fifo_write <= 0;
+        /*here when we receive that tx_fifo_full is 1 that means fifo is full and not READY to receive the data
+         but here there is no feedback signal to alert wishbone to not to send the data until tx_fifo_full becomes
+         low, otherwise it'll keep supplying new data, which would eventually be lost here with the current logic */
         if (write_en && addr == TX_ADDR && !tx_fifo_full) begin
             tx_fifo_write <= 1;
             tx_fifo_wdata <= wdata;
@@ -74,8 +77,13 @@ always_ff @( posedge clk or negedge rst_n ) begin
         if (rx_data_valid_d) begin
             rdata <= rx_fifo_rdata;
             rx_read_pending <= 0;
+            //here rx_data_valid_d should also be made 0
         end
 
+        /* problem here is that fifo read is synchronous so it'll take two clock cycle to for the rdata to reach 
+            here which i should change and read should be combinational or should happen in the same clock cycle when
+            read_en becomes high, and also similar to the write feedback , here i should write read feedback to the 
+            Wishbone to alert it to not send new read request when fifo is empty*/
         else if(read_en && addr == RX_ADDR && !rx_fifo_empty && !rx_read_pending) begin
             rx_read_pending <= 1;
             rx_fifo_read <= 1;
