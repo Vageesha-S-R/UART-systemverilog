@@ -30,7 +30,7 @@ assign read_en = wb_cyc && wb_stb && !wb_we;
 assign addr = wb_addr;
 assign wdata = wb_wdata;
 assign wb_rdata = rdata;
-
+// wb_ack here doesn't check for the feeback signals , so should change the logic
 always_ff @( posedge clk or negedge rst_n ) begin 
     if (!rst_n) begin
         wb_ack <= 0;
