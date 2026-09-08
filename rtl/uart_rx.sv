@@ -31,6 +31,7 @@ module uart_rx (
             data_valid <= 0;
             parity_error <= 0;
             if (baud_16x_tick) begin
+            /* aample_count is used for sampling the data at the middle when sample_count is 8*/
                 if(sample_count == 15) begin
                     sample_count <= 0;
                 end
@@ -40,10 +41,13 @@ module uart_rx (
                 case (state)
                     idle: begin
                         if (!rx) begin
+                        //change the state when rx goes high , that means we received the start bit
                             state <= start;
                         end
                     end
                     start: begin
+                        /* just to make sure start bit is genuine, we sample at the middle of the tx baud_tick.
+                            if it still stays high then continue to receive the data, otherwise go back to idle*/
                         if (sample_count == 8) begin
                             if (!rx) begin
                                 state <= data;
@@ -75,6 +79,9 @@ module uart_rx (
                     end
                     parity: begin
                         if (sample_count == 8) begin
+                            /* parity_error should be sent back/feedback to the tx to indicate that there is a 
+                            parity error and tx , tx_reg should resolve it send back the correct code . 
+                            should parity_error feedback should be combinational ?? */
                             parity_error <= ((parity_odd ? ~(^shift_reg) : (^shift_reg)) != rx);
                             state <= stop;
                         end 
