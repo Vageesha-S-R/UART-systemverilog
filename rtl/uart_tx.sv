@@ -21,6 +21,7 @@ always_ff @( posedge clk or negedge rst_n ) begin
         data_valid_latched <= 0;
     end
     else begin
+        /* data_valid signal is when tx is not busy and there is data to send in fifo i.e fifo noot empty */
         if (data_valid) begin
             data_valid_latched <= 1;
         end
@@ -45,6 +46,11 @@ always_ff @(posedge clk or negedge rst_n) begin
                 idle: begin
                     tx<=1;
                     busy<=0;
+                    /*currently data_in is comming from synchronous fifo that's why there is oen clock delay
+                        theat's why data_valid_latched is used here (need to change that) , second, we are only
+                        sampling/receiving the data only during baud tick, which is wrong , we should immediatly
+                            sample the data_in whenever we get data_valid is high outside the baud_tick , and then
+                            tarnsfer the data one by one during baud_tick  */
                     if (data_valid_latched) begin
                         shift_reg<=data_in;
                         parity_bit<=parity_odd ? ~(^data_in) : (^data_in);
